@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>奇门遁甲 | 天机排盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;500;700&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'void-dark': '#050505',
+              'ink-black': '#1a1a1a',
+              'cinnabar': '#b91c1c',
+              'gold-light': '#fcd34d',
+              'gold-dark': '#b45309',
+              'jade-dark': '#064e3b',
+            },
+            fontFamily: {
+              serif: ['"Noto Serif SC"', 'serif'],
+              calligraphy: ['"Zhi Mang Xing"', '"Ma Shan Zheng"', 'cursive'],
+            },
+            animation: {
+              'spin-slow': 'spin 60s linear infinite',
+              'spin-slower': 'spin 90s linear infinite',
+              'spin-very-slow': 'spin 120s linear infinite',
+              'spin-reverse': 'spin 45s linear infinite reverse',
+              'spin-reverse-slower': 'spin 100s linear infinite reverse',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'float': 'float 6s ease-in-out infinite',
+              'stamp-drop': 'stampDrop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+              'flicker': 'flicker 3s infinite alternate',
+              'flow': 'flow 8s infinite linear',
+              'mist': 'mist 10s infinite linear',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              },
+              stampDrop: {
+                '0%': { transform: 'scale(3) rotate(-10deg)', opacity: '0' },
+                '100%': { transform: 'scale(1) rotate(-5deg)', opacity: '1' },
+              },
+              flicker: {
+                '0%': { opacity: '0.3', transform: 'scale(1)' },
+                '100%': { opacity: '0.6', transform: 'scale(1.1)' },
+              },
+              flow: {
+                '0%': { transform: 'translateY(0) rotate(0deg)' },
+                '50%': { transform: 'translateY(-5px) rotate(2deg)' },
+                '100%': { transform: 'translateY(0) rotate(0deg)' },
+              },
+              mist: {
+                '0%': { transform: 'translateX(-10%)', opacity: '0.2' },
+                '50%': { opacity: '0.5' },
+                '100%': { transform: 'translateX(10%)', opacity: '0.2' },
+              }
+            },
+            backgroundImage: {
+              'noise': "url('https://www.transparenttextures.com/patterns/stardust.png')",
+              'rice-paper': "linear-gradient(to bottom right, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #050505;
+        color: #e5e5e5;
+        overflow-x: hidden;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1a1a1a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+      }
+      .glass-panel {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(252, 211, 77, 0.1);
+      }
+      .glow-text {
+        text-shadow: 0 0 10px rgba(252, 211, 77, 0.3);
+      }
+      .stamp-mark {
+        mix-blend-mode: multiply;
+      }
+      /* Perspective for 3D effects */
+      .perspective-1000 {
+        perspective: 1000px;
+      }
+      .preserve-3d {
+        transform-style: preserve-3d;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
