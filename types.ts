@@ -6,6 +6,8 @@ export enum ElementType {
   WATER = '水'
 }
 
+export type Language = 'zh' | 'en';
+
 export interface Ganzhi {
   gan: string;
   zhi: string;

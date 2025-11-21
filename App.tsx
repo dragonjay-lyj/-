@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { generateChart } from './utils/qimenEngine';
-import { QimenChart } from './types';
+import { QimenChart, Language } from './types';
 import { PalaceCell } from './components/PalaceCell';
 import { ControlPanel } from './components/ControlPanel';
 import { BackgroundCompass } from './components/BackgroundCompass';
+import { translate, translateInfo } from './utils/translations';
 
 const App: React.FC = () => {
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -13,6 +14,7 @@ const App: React.FC = () => {
   const [selectedPalace, setSelectedPalace] = useState<number | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [scale, setScale] = useState(1);
+  const [language, setLanguage] = useState<Language>('zh');
 
   const chartRef = useRef<HTMLDivElement>(null);
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -21,11 +23,8 @@ const App: React.FC = () => {
   useEffect(() => {
     const handleResize = () => {
       if (viewMode === 'chart') {
-        // Target visual height for the chart layout (Header + Chart + Footer) approx 850px
-        // If viewport is smaller, scale down.
         const targetHeight = 900;
         const availableHeight = window.innerHeight;
-        // Only scale down, don't scale up excessively
         const newScale = Math.min(1, availableHeight / targetHeight);
         setScale(newScale);
       } else {
@@ -89,16 +88,28 @@ const App: React.FC = () => {
        <div className="fixed bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-amber-900/10 rounded-full blur-[120px] z-0"></div>
        
        <div className={`fixed inset-0 flex items-center justify-center transition-all duration-1000 pointer-events-none z-0 ${viewMode === 'chart' ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
-          <BackgroundCompass />
+          <BackgroundCompass language={language} />
+       </div>
+
+       {/* Language Toggle - Fixed Top Right */}
+       <div className="absolute top-4 right-4 z-50">
+           <button 
+             onClick={() => setLanguage(prev => prev === 'zh' ? 'en' : 'zh')}
+             className="flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-black/30 hover:bg-white/10 hover:border-amber-500/50 transition-all text-xs font-serif text-slate-400"
+           >
+             <span className={language === 'zh' ? 'text-amber-400 font-bold' : ''}>中</span>
+             <span className="w-px h-3 bg-white/20"></span>
+             <span className={language === 'en' ? 'text-amber-400 font-bold' : ''}>EN</span>
+           </button>
        </div>
 
        {/* Main Content Wrapper */}
        <div className="relative z-10 w-full h-full flex flex-col items-center">
           
-          {/* Header - Independent of Scale for Compass Mode, Scaled in Chart Mode via container */}
+          {/* Header */}
           <header className={`text-center transition-all duration-1000 z-30 relative shrink-0 ${viewMode === 'chart' ? 'mt-2 mb-2 scale-75 origin-bottom' : 'mt-[10vh] mb-8'}`}>
               <h1 onClick={reset} className="cursor-pointer text-5xl md:text-6xl font-calligraphy text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-700 mb-2 drop-shadow-lg hover:scale-105 transition-transform">
-                  奇门遁甲
+                  {translate('奇门遁甲', 'ui', language)}
               </h1>
               <p className="text-slate-500 font-serif tracking-[0.6em] text-xs uppercase flex justify-center gap-4">
                   <span>Cyber-Cultivation</span>
@@ -118,15 +129,15 @@ const App: React.FC = () => {
                 setBirthYear={setBirthYear}
                 onGenerate={calculate}
                 viewMode={viewMode}
+                language={language}
             />
 
-            {/* Chart Container - Scalable */}
+            {/* Chart Container */}
             <div 
                 className={`w-full flex flex-col items-center transition-all duration-1000 ease-out absolute top-0 left-0 right-0 ${viewMode === 'chart' ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-20 pointer-events-none'}`}
                 style={{ 
                     transform: `scale(${scale})`,
                     transformOrigin: 'top center',
-                    // Adjust vertical offset based on scale to center it visually if needed
                     marginTop: viewMode === 'chart' ? '10px' : '0px'
                 }}
                 ref={chartContainerRef}
@@ -136,10 +147,10 @@ const App: React.FC = () => {
                         {/* Actions */}
                         <div className="flex justify-between items-center mb-2 px-2 w-[600px] max-w-full mx-auto">
                             <button onClick={reset} className="no-print text-xs font-serif text-slate-400 hover:text-amber-400 flex items-center gap-1 transition-colors border border-white/10 px-3 py-0.5 rounded-full bg-black/40 backdrop-blur-sm hover:border-amber-500/50">
-                                ← 重置
+                                ← {translate('重置', 'ui', language)}
                             </button>
                             <div className="text-[10px] font-serif text-amber-500/80">
-                                ※ 点击宫位详情
+                                ※ {translate('点击宫位详情', 'ui', language)}
                             </div>
                         </div>
 
@@ -148,30 +159,33 @@ const App: React.FC = () => {
                             <div className="absolute inset-0 pointer-events-none bg-rice-paper opacity-10 z-0"></div>
                             
                             <div className="absolute top-2 right-2 text-[9px] text-slate-600 font-serif tracking-widest border border-slate-800 px-1.5 py-0.5 rounded opacity-50">
-                                时家拆补转盘
+                                {translate('时家拆补转盘', 'ui', language)}
                             </div>
 
                             <div className="relative z-10 flex justify-between items-end mb-4 border-b border-amber-900/30 pb-2">
                                 <div className="flex gap-4 text-center font-serif text-amber-100/90">
                                     {[
-                                        { label: '年', val: chartData.pillars.year },
-                                        { label: '月', val: chartData.pillars.month },
-                                        { label: '日', val: chartData.pillars.day },
-                                        { label: '时', val: chartData.pillars.hour },
+                                        { label: translate('年', 'ui', language), val: chartData.pillars.year },
+                                        { label: translate('月', 'ui', language), val: chartData.pillars.month },
+                                        { label: translate('日', 'ui', language), val: chartData.pillars.day },
+                                        { label: translate('时', 'ui', language), val: chartData.pillars.hour },
                                     ].map((p, i) => (
                                         <div key={i} className="flex flex-col items-center">
                                             <span className="text-[9px] text-slate-500 mb-0.5">{p.label}</span>
-                                            <span className="font-bold text-lg font-calligraphy text-amber-400 drop-shadow-sm">{p.val.gan}{p.val.zhi}</span>
+                                            <span className="font-bold text-lg font-calligraphy text-amber-400 drop-shadow-sm">
+                                                {translate(p.val.gan, 'stems', language)}
+                                                {translate(p.val.zhi, 'branches', language)}
+                                            </span>
                                         </div>
                                     ))}
                                 </div>
                                 
                                 <div className="text-right">
                                     <div className="text-xl font-calligraphy text-slate-200 drop-shadow-md">
-                                        {chartData.jieqi} <span className="text-amber-600 mx-1">·</span> {chartData.juName}
+                                        {translateInfo(chartData.jieqi, language)} <span className="text-amber-600 mx-1">·</span> {translateInfo(chartData.juName, language)}
                                     </div>
                                     <div className="text-[10px] font-mono text-slate-400 tracking-wider">
-                                        值符 <span className="text-amber-500">{chartData.xunShou}</span>
+                                        {translate('值符', 'ui', language)} <span className="text-amber-500">{translate(chartData.xunShou.replace(/[^甲乙丙丁戊己庚辛壬癸子丑寅卯辰巳午未申酉戌亥]/g, ''), 'stems', language) || chartData.xunShou}</span>
                                     </div>
                                 </div>
                             </div>
@@ -188,6 +202,7 @@ const App: React.FC = () => {
                                             isSelected={selectedPalace === id}
                                             onSelect={(pid) => setSelectedPalace(selectedPalace === pid ? null : pid)}
                                             isDimmed={selectedPalace !== null}
+                                            language={language}
                                         />
                                     );
                                 })}
@@ -216,13 +231,13 @@ const App: React.FC = () => {
         onClick={handleSave}
         disabled={isSaving || viewMode !== 'chart'}
         className={`fixed bottom-6 right-6 w-14 h-14 bg-cinnabar rounded-full shadow-[0_0_30px_rgba(185,28,28,0.6)] border-2 border-red-900 hover:bg-red-700 active:scale-90 transition-all duration-500 z-50 flex items-center justify-center group ${viewMode === 'chart' ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
-        title="保存排盘"
+        title={translate('印', 'ui', language)}
        >
            <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center">
              {isSaving ? (
                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
              ) : (
-                 <span className="font-calligraphy text-white text-xl drop-shadow-md">印</span>
+                 <span className="font-calligraphy text-white text-xl drop-shadow-md">{translate('印', 'ui', language)}</span>
              )}
            </div>
            <div className="absolute inset-0 rounded-full border border-red-500 animate-ping opacity-30"></div>

@@ -1,11 +1,13 @@
 import React from 'react';
-import { PalaceData, ElementType } from '../types';
+import { PalaceData, ElementType, Language } from '../types';
+import { translate, translateAnalysis } from '../utils/translations';
 
 interface Props {
   data: PalaceData;
   isSelected: boolean;
   onSelect: (id: number) => void;
   isDimmed: boolean;
+  language: Language;
 }
 
 const ElementStyles: Record<ElementType, { bg: string, text: string }> = {
@@ -31,7 +33,7 @@ const ElementStyles: Record<ElementType, { bg: string, text: string }> = {
   },
 };
 
-export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimmed }) => {
+export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimmed, language }) => {
   const { 
     id, name, bagua, element, god, star, door, 
     heavenStems, earthStems, hiddenStem,
@@ -55,11 +57,15 @@ export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimm
   // Base font size
   const mainFontClass = "text-base md:text-xl font-serif font-bold leading-tight";
 
+  // Helper for translated data
+  const t = (text: string, type: 'stems' | 'stars' | 'doors' | 'gods' | 'bagua' | 'ui' | 'palaceNames' = 'ui') => translate(text, type, language);
+
   const renderStem = (stem: string | undefined | null, colorClass: string) => {
     if (!stem || typeof stem !== 'string') return <div className="w-4 md:w-5"></div>;
+    const text = t(stem, 'stems');
     return (
       <div className={`flex flex-col items-center justify-center leading-none ${colorClass} ${mainFontClass}`}>
-        {stem.split('').map((char, i) => (
+        {text.split('').map((char, i) => (
           <span key={i} className="block -my-0.5">{char}</span>
         ))}
       </div>
@@ -71,6 +77,8 @@ export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimm
   const parasiticHeaven = heavenStems && heavenStems.length > 1 ? heavenStems[0] : null;
   const parasiticEarth = earthStems && earthStems.length > 1 ? earthStems[0] : null;
   const hasParasitic = parasiticHeaven !== null || parasiticEarth !== null;
+
+  const displayBagua = t(bagua, 'bagua');
 
   return (
     <div 
@@ -90,7 +98,7 @@ export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimm
 
       {/* Background Symbol */}
       <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl md:text-7xl opacity-10 pointer-events-none font-calligraphy ${styles.text}`}>
-        {bagua}
+        {displayBagua}
       </div>
 
       {/* --- CORNER LAYOUT (Compact) --- */}
@@ -98,14 +106,14 @@ export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimm
       {/* TOP LEFT: Hidden Stem */}
       <div className="absolute top-1 left-1 md:top-1.5 md:left-2 z-10">
            <div className="text-xl md:text-3xl text-slate-500 font-serif font-bold opacity-80 drop-shadow-sm">
-               {hiddenStem}
+               {t(hiddenStem, 'stems')}
            </div>
       </div>
 
       {/* TOP RIGHT: Star */}
-      <div className="absolute top-1 right-1 md:top-1.5 md:right-2 z-10">
+      <div className="absolute top-1 right-1 md:top-1.5 md:right-2 z-10 text-right">
           <div className={`${mainFontClass} text-amber-500/90 drop-shadow-md`}>
-              {star}
+              {t(star, 'stars')}
           </div>
       </div>
 
@@ -119,10 +127,10 @@ export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimm
       {/* BOTTOM LEFT: God & Door */}
       <div className="absolute bottom-1 left-1 md:bottom-1.5 md:left-2 z-10 flex flex-col items-start gap-0">
           <div className={`${mainFontClass} text-amber-100 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]`}>
-              {god}
+              {t(god, 'gods')}
           </div>
           <div className={`${mainFontClass} ${['生门','开门','休门'].includes(door) ? 'text-red-400' : 'text-slate-300'} drop-shadow-md`}>
-              {door}
+              {t(door, 'doors')}
           </div>
       </div>
 
@@ -142,16 +150,20 @@ export const PalaceCell: React.FC<Props> = ({ data, isSelected, onSelect, isDimm
 
       {/* BOTTOM CENTER: Name */}
       <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 text-[9px] md:text-[10px] text-slate-400 font-mono whitespace-nowrap pointer-events-none z-0 opacity-60">
-          {name}
+          {t(name, 'palaceNames')}
       </div>
 
       {/* Analysis Overlay */}
       <div className={`absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col justify-center items-center p-2 text-center z-30 transition-all duration-300 ${isSelected ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <h3 className={`text-xl md:text-2xl font-calligraphy mb-1 ${auspiciousness === '吉' ? 'text-red-500' : auspiciousness === '凶' ? 'text-slate-400' : 'text-amber-500'}`}>
-          {auspiciousness === '吉' ? '上吉' : auspiciousness === '凶' ? '凶格' : '平局'}
+          {t(auspiciousness === '吉' ? '上吉' : auspiciousness === '凶' ? '凶格' : '平局', 'ui')}
         </h3>
-        <p className="text-xs md:text-sm text-gray-300 leading-relaxed font-serif mb-2 px-1">{analysis}</p>
-        <div className="text-[10px] text-amber-700 border-t border-amber-900/30 pt-1 w-2/3">{bagua}宫 · {element}</div>
+        <p className="text-xs md:text-sm text-gray-300 leading-relaxed font-serif mb-2 px-1">
+            {translateAnalysis(analysis, language)}
+        </p>
+        <div className="text-[10px] text-amber-700 border-t border-amber-900/30 pt-1 w-2/3">
+            {displayBagua} · {t(data.element, 'elements' as any)}
+        </div>
       </div>
     </div>
   );
